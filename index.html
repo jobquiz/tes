@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultimate E-Paper Typer Assistant</title>
+    
+    <!-- Mobile Standalone Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Inline PWA Manifest Web Standard -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22E-Paper%20Typer%20Assistant%22%2C%22short_name%22%3A%22Typer%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%2715%25%27%20fill%3D%27%231e293b%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2760%25%27%20font-size%3D%27200%27%20font-family%3D%27sans-serif%27%20font-weight%3D%27bold%27%20fill%3D%27%233b82f6%27%20text-anchor%3D%27middle%27%3ET%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+    
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-panel: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fixed Fixed Height Control Dashboard */
+        #control-panel {
+            background-color: var(--bg-panel);
+            padding: 12px 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Safe Bottom Pin Architecture without replication hooks */
+        #control-panel.scrolling-mode {
+            top: auto;
+            bottom: 0;
+            border-bottom: none;
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        #control-panel.scrolling-mode.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .timer-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.15);
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            min-width: 90px;
+            justify-content: center;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+            color: var(--text-main);
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        button, .file-upload {
+            font-size: 14px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .file-upload {
+            background-color: var(--border);
+            color: var(--text-main);
+        }
+
+        #btn-toggle {
+            background-color: var(--success);
+            color: white;
+            flex: 1;
+            width: 100%;
+        }
+
+        #btn-toggle.scrolling {
+            background-color: var(--danger);
+        }
+
+        #btn-resume {
+            background-color: var(--primary);
+            color: white;
+            flex: 1;
+            display: none; 
+        }
+
+        /* Viewer Layout Initialization */
+        #viewer-container {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: auto;
+            background-color: #0b0f19;
+            touch-action: none;
+            box-sizing: border-box;
+            padding-top: 155px; /* Default padded ceiling space for panel height */
+            cursor: grab;
+        }
+
+        #viewer-container:active {
+            cursor: grabbing;
+        }
+
+        #image-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            display: inline-block;
+            padding-bottom: 80vh; 
+            will-change: transform;
+        }
+
+        #paper-img {
+            display: block;
+            width: 100vw;
+            height: auto;
+            pointer-events: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            image-rendering: auto;
+            filter: grayscale(1) contrast(1.35) brightness(0.94);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Control Panel Dashboard -->
+    <div id="control-panel">
+        <div class="row">
+            <label class="file-upload">
+                📁 Upload Image
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+            </label>
+            
+            <div class="timer-group">
+                ⏱️ <span id="timer-display">00:00</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="input-group">
+                <label>Interval (s):</label>
+                <input type="number" id="scroll-interval" min="1" max="300" value="30">
+            </div>
+
+            <div class="input-group">
+                <label>Distance (px):</label>
+                <input type="number" id="scroll-amount" min="10" max="500" value="80">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="button-container">
+                <button id="btn-toggle">▶ Start Auto Scroll</button>
+                <button id="btn-resume">▶ Resume</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Viewer Area -->
+    <div id="viewer-container">
+        <div id="image-wrapper">
+            <img id="paper-img" src="" alt="E-Paper View" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Offline Engine Active Successfully!'))
+                .catch(err => console.log('SW Registration failed', err));
+            });
+        }
+
+        const fileInput = document.getElementById('file-input');
+        const paperImg = document.getElementById('paper-img');
+        const imageWrapper = document.getElementById('image-wrapper');
+        const viewerContainer = document.getElementById('viewer-container');
+        const controlPanel = document.getElementById('control-panel');
+        const btnToggle = document.getElementById('btn-toggle');
+        const btnResume = document.getElementById('btn-resume');
+        const scrollIntervalInput = document.getElementById('scroll-interval');
+        const scrollAmountInput = document.getElementById('scroll-amount');
+        const timerDisplay = document.getElementById('timer-display');
+
+        let isScrolling = false;
+        let isPaused = false;
+        let scrollTimer = null;
+        let UIHideTimeout = null;
+
+        let startTime = 0;
+        let elapsedSeconds = 0;
+        let clockTimer = null;
+        let pausedTimeElapsed = 0; 
+
+        let globalAudioCtx = null;
+
+        let scale = 1;
+        let pointX = 0;
+        let pointY = 0;
+        let start = { x: 0, y: 0 };
+        let isPanning = false;
+        let initialDist = 0;
+        let centerPoint = { x: 0, y: 0 };
+
+        let touchStartPos = { x: 0, y: 0 };
+        let isDragActive = false;
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    paperImg.src = event.target.result;
+                    paperImg.style.display = 'block';
+                    scale = 1; pointX = 0; pointY = 0;
+                    updateTransform();
+                    resetTimerDisplay();
+                    if(isScrolling || isPaused) stopAutoScroll();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateTransform() {
+            imageWrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+        }
+
+        function getDistance(t1, t2) {
+            return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        }
+
+        function getCenter(t1, t2) {
+            return {
+                x: (t1.clientX + t2.clientX) / 2,
+                y: (t1.clientY + t2.clientY) / 2
+            };
+        }
+
+        // --- Touch Engine Events ---
+        viewerContainer.addEventListener('touchstart', (e) => {
+            const rect = viewerContainer.getBoundingClientRect();
+            isDragActive = false; 
+            
+            if (e.touches.length === 1) {
+                isPanning = true;
+                start = { x: e.touches[0].clientX - pointX, y: e.touches[0].clientY - pointY };
+                touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                isPanning = false;
+                isDragActive = true; 
+                initialDist = getDistance(e.touches[0], e.touches[1]);
+                const rawCenter = getCenter(e.touches[0], e.touches[1]);
+                centerPoint = { x: rawCenter.x - rect.left, y: rawCenter.y - rect.top };
+            }
+        });
+
+        viewerContainer.addEventListener('touchmove', (e) => {
+            if (isPanning && e.touches.length === 1) {
+                if (Math.hypot(e.touches[0].clientX - touchStartPos.x, e.touches[0].clientY - touchStartPos.y) > 8) {
+                    isDragActive = true;
+                }
+                pointX = e.touches[0].clientX - start.x;
+                pointY = e.touches[0].clientY - start.y;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const dist = getDistance(e.touches[0], e.touches[1]);
+                const factor = dist / initialDist;
+                const newScale = Math.min(Math.max(0.6, scale * factor), 6);
+                
+                pointX = centerPoint.x - (centerPoint.x - pointX) * (newScale / scale);
+                pointY = centerPoint.y - (centerPoint.y - pointY) * (newScale / scale);
+                
+                scale = newScale;
+                initialDist = dist;
+                updateTransform();
+            }
+        });
+
+        viewerContainer.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) isPanning = false;
+            else if (e.touches.length === 1) {
+                isPanning = true;
+                start = { x: e.touches[0].clientX - pointX, y: e.touches[0].clientY - pointY };
+            }
+        });
+
+        // --- Mouse Engine Events ---
+        viewerContainer.addEventListener('mousedown', (e) => {
+            isDragActive = false;
+            isPanning = true;
+            start = { x: e.clientX - pointX, y: e.clientY - pointY };
+            touchStartPos = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            if (Math.hypot(e.clientX - touchStartPos.x, e.clientY - touchStartPos.y) > 8) {
+                isDragActive = true;
+            }
+            pointX = e.clientX - start.x;
+            pointY = e.clientY - start.y;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isPanning = false;
+        });
+
+        viewerContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = viewerContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const zoomFactor = 1.1;
+            const newScale = e.deltaY < 0 ? Math.min(scale * zoomFactor, 6) : Math.max(scale / zoomFactor, 0.6);
+            
+            pointX = mouseX - (mouseX - pointX) * (newScale / scale);
+            pointY = mouseY - (mouseY - pointY) * (newScale / scale);
+            
+            scale = newScale;
+            updateTransform();
+        }, { passive: false });
+
+        // --- Precise Single Tap Click Pause Trigger ---
+        viewerContainer.addEventListener('click', (e) => {
+            if (isDragActive) return;
+            if (isScrolling && !isPaused) {
+                pauseAutoScroll();
+            }
+        });
+
+        function hideUIElements() {
+            if (isScrolling && !isPaused) {
+                controlPanel.classList.add('hidden');
+            }
+        }
+
+        function showUIElements() {
+            controlPanel.classList.remove('hidden');
+        }
+
+        function resetUIHideTimer() {
+            if (UIHideTimeout) clearTimeout(UIHideTimeout);
+            UIHideTimeout = setTimeout(hideUIElements, 5000); 
+        }
+
+        function triggerTimeAlert(count) {
+            if (globalAudioCtx) {
+                if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
+                
+                const now = globalAudioCtx.currentTime;
+                const beepDuration = 0.12; 
+                const beepGap = 0.18;      
+
+                for (let i = 0; i < count; i++) {
+                    const startTime = now + (i * (beepDuration + beepGap));
+                    const stopTime = startTime + beepDuration;
+
+                    const oscillator = globalAudioCtx.createOscillator();
+                    const BlackGain = globalAudioCtx.createGain();
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, startTime); 
+                    BlackGain.gain.setValueAtTime(0.3, startTime); 
+
+                    oscillator.connect(BlackGain);
+                    BlackGain.connect(globalAudioCtx.destination);
+                    
+                    oscillator.start(startTime);
+                    oscillator.stop(stopTime);
+                }
+            }
+
+            if ('vibrate' in navigator) {
+                let vPattern = [];
+                for (let i = 0; i < count; i++) {
+                    vPattern.push(300); 
+                    if (i < count - 1) {
+                        vPattern.push(200); 
+                    }
+                }
+                navigator.vibrate(vPattern);
+            }
+        }
+
+        function startClock(resumeFrom = 0) {
+            clearInterval(clockTimer);
+            startTime = Date.now() - (resumeFrom * 1000);
+            
+            clockTimer = setInterval(() => {
+                elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsedSeconds / 60);
+                const seconds = elapsedSeconds % 60;
+                
+                timerDisplay.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (seconds === 0 && minutes > 0) {
+                    if (minutes === 5) triggerTimeAlert(1);
+                    else if (minutes === 10) triggerTimeAlert(2);
+                    else if (minutes === 15) triggerTimeAlert(3);
+                    else if (minutes === 20) triggerTimeAlert(4);
+                    else if (minutes === 25) triggerTimeAlert(5);
+                    else if (minutes === 30) triggerTimeAlert(6);
+                }
+            }, 1000);
+        }
+
+        function stopClock() {
+            clearInterval(clockTimer);
+        }
+
+        function resetTimerDisplay() {
+            clearInterval(clockTimer);
+            timerDisplay.innerText = "00:00";
+            elapsedSeconds = 0;
+            pausedTimeElapsed = 0;
+        }
+
+        function startAutoScroll() {
+            if (scrollTimer) clearInterval(scrollTimer);
+            const intervalTime = parseInt(scrollIntervalInput.value) * 1000; 
+            
+            scrollTimer = setInterval(() => {
+                const amount = parseInt(scrollAmountInput.value);
+                const wrapperHeight = imageWrapper.offsetHeight * scale;
+                const containerHeight = viewerContainer.offsetHeight;
+                
+                if (Math.abs(pointY) >= (wrapperHeight - containerHeight)) {
+                    clearInterval(scrollTimer);
+                    stopAutoScroll();
+                } else {
+                    pointY -= amount; 
+                    imageWrapper.style.transition = "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)"; 
+                    updateTransform();
+                    setTimeout(() => { imageWrapper.style.transition = "none"; }, 500);
+                }
+            }, intervalTime);
+
+            resetUIHideTimer();
+            startClock(pausedTimeElapsed); 
+        }
+
+        // --- Pause Logic Fix ---
+        function pauseAutoScroll() {
+            clearInterval(scrollTimer);
+            stopClock();
+            if (UIHideTimeout) clearTimeout(UIHideTimeout);
+            
+            isPaused = true;
+            pausedTimeElapsed = elapsedSeconds; 
+
+            showUIElements();
+            btnToggle.innerText = "Status: Paused"; 
+            btnToggle.style.backgroundColor = "var(--border)";
+            btnResume.style.display = "inline-flex"; 
+        }
+
+        // --- Resume Logic Fix ---
+        function resumeAutoScroll() {
+            isPaused = false;
+            btnResume.style.display = "none";
+            btnToggle.innerText = "⏸ Stop Scroll";
+            btnToggle.style.backgroundColor = "var(--danger)";
+            
+            resetUIHideTimer();
+            startAutoScroll(); 
+        }
+
+        function stopAutoScroll() {
+            clearInterval(scrollTimer);
+            stopClock(); 
+            if (UIHideTimeout) clearTimeout(UIHideTimeout);
+            
+            isScrolling = false;
+            isPaused = false;
+            pausedTimeElapsed = 0;
+            
+            controlPanel.classList.remove('scrolling-mode');
+            controlPanel.classList.remove('hidden');
+            
+            btnToggle.classList.remove('scrolling');
+            btnToggle.style.backgroundColor = "var(--success)";
+            btnToggle.innerText = "▶ Start Auto Scroll";
+            btnResume.style.display = "none";
+            
+            viewerContainer.style.paddingTop = "155px";
+        }
+
+        btnToggle.addEventListener('click', (e) => {
+            if (!paperImg.src || paperImg.style.display === 'none') {
+                alert('Please upload an E-Paper image first!');
+                return;
+            }
+            e.stopPropagation();
+
+            if (!globalAudioCtx) {
+                globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (globalAudioCtx.state === 'suspended') {
+                globalAudioCtx.resume();
+            }
+
+            if (isScrolling) {
+                stopAutoScroll();
+                if (document.fullscreenElement) document.exitFullscreen();
+            } else {
+                isScrolling = true;
+                isPaused = false;
+                pausedTimeElapsed = 0;
+                
+                viewerContainer.style.paddingTop = "0px";
+                controlPanel.classList.add('scrolling-mode');
+                controlPanel.classList.add('hidden'); 
+                
+                btnToggle.innerText = "⏸ Stop Scroll";
+                btnToggle.style.backgroundColor = "var(--danger)";
+                btnToggle.classList.add('scrolling');
+
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+                
+                startAutoScroll();
+            }
+        });
+
+        btnResume.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resumeAutoScroll();
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isScrolling) {
+                stopAutoScroll();
+            }
+        });
+
+        scrollIntervalInput.addEventListener('change', () => {
+            if (isScrolling && !isPaused) startAutoScroll();
+        });
+    </script>
+</body>
+</html>
