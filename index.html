@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ultimate E-Paper Typer Assistant</title>
     
     <!-- Mobile Standalone Meta Tags -->
@@ -28,48 +28,87 @@
             --accent: #f59e0b;
         }
 
-        body {
+        /* 100% Secure Safe Height Viewport System */
+        html, body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background-color: var(--bg-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
         }
 
-        /* Fixed Fixed Height Control Dashboard */
-        #control-panel {
-            background-color: var(--bg-panel);
-            padding: 12px 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+        /* Safe Single-Parent Container Layout */
+        #app-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Viewer Layout Initialization */
+        #viewer-container {
+            flex-grow: 1;
+            width: 100%;
+            overflow: auto;
+            background-color: #0b0f19;
+            touch-action: none;
+            position: relative;
+            cursor: grab;
+            box-sizing: border-box;
+        }
+
+        #viewer-container:active {
+            cursor: grabbing;
+        }
+
+        #image-wrapper {
             position: absolute;
             top: 0;
             left: 0;
+            transform-origin: 0 0;
+            display: inline-block;
+            padding-bottom: 75vh; 
+            will-change: transform;
+        }
+
+        #paper-img {
+            display: block;
+            width: 100vw;
+            height: auto;
+            pointer-events: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            image-rendering: auto;
+            filter: grayscale(1) contrast(1.35) brightness(0.94);
+        }
+
+        /* Fixed Single-Instance Control Dashboard Matrix */
+        #control-panel {
+            background-color: var(--bg-panel);
+            padding: 12px 16px;
+            box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             width: 100%;
             box-sizing: border-box;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            border-top: 1px solid var(--border);
+            
+            /* Clean hardware acceleration properties for auto-sliding */
+            position: absolute;
+            bottom: 0;
+            left: 0;
             transform: translateY(0);
             opacity: 1;
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
         }
 
-        /* Safe Bottom Pin Architecture without replication hooks */
-        #control-panel.scrolling-mode {
-            top: auto;
-            bottom: 0;
-            border-bottom: none;
-            border-top: 1px solid var(--border);
-            box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-
-        #control-panel.scrolling-mode.hidden {
+        /* Perfect Safe Translation Engine without replication hooks */
+        #control-panel.hidden {
             transform: translateY(100%);
             opacity: 0;
             pointer-events: none;
@@ -132,7 +171,7 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -161,87 +200,53 @@
             flex: 1;
             display: none; 
         }
-
-        /* Viewer Layout Initialization */
-        #viewer-container {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            overflow: auto;
-            background-color: #0b0f19;
-            touch-action: none;
-            box-sizing: border-box;
-            padding-top: 155px; /* Default padded ceiling space for panel height */
-            cursor: grab;
-        }
-
-        #viewer-container:active {
-            cursor: grabbing;
-        }
-
-        #image-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform-origin: 0 0;
-            display: inline-block;
-            padding-bottom: 80vh; 
-            will-change: transform;
-        }
-
-        #paper-img {
-            display: block;
-            width: 100vw;
-            height: auto;
-            pointer-events: none;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            image-rendering: auto;
-            filter: grayscale(1) contrast(1.35) brightness(0.94);
-        }
     </style>
 </head>
 <body>
 
-    <!-- Control Panel Dashboard -->
-    <div id="control-panel">
-        <div class="row">
-            <label class="file-upload">
-                📁 Upload Image
-                <input type="file" id="file-input" accept="image/*" style="display: none;">
-            </label>
+    <!-- Unified Master Application Wrapper Grid -->
+    <div id="app-wrapper">
+        
+        <!-- Main Dynamic Viewer Area -->
+        <div id="viewer-container">
+            <div id="image-wrapper">
+                <img id="paper-img" src="" alt="E-Paper View" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Control Panel Dashboard -->
+        <div id="control-panel">
+            <div class="row">
+                <label class="file-upload">
+                    📁 Upload Image
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                </label>
+                
+                <div class="timer-group">
+                    ⏱️ <span id="timer-display">00:00</span>
+                </div>
+            </div>
             
-            <div class="timer-group">
-                ⏱️ <span id="timer-display">00:00</span>
+            <div class="row">
+                <div class="input-group">
+                    <label>Interval (s):</label>
+                    <input type="number" id="scroll-interval" min="1" max="300" value="30">
+                </div>
+
+                <div class="input-group">
+                    <label>Distance (px):</label>
+                    <input type="number" id="scroll-amount" min="10" max="500" value="80">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="button-container">
+                    <button id="btn-toggle">▶ Start Auto Scroll</button>
+                    <button id="btn-resume">▶ Resume</button>
+                </div>
             </div>
         </div>
         
-        <div class="row">
-            <div class="input-group">
-                <label>Interval (s):</label>
-                <input type="number" id="scroll-interval" min="1" max="300" value="30">
-            </div>
-
-            <div class="input-group">
-                <label>Distance (px):</label>
-                <input type="number" id="scroll-amount" min="10" max="500" value="80">
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="button-container">
-                <button id="btn-toggle">▶ Start Auto Scroll</button>
-                <button id="btn-resume">▶ Resume</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dynamic Viewer Area -->
-    <div id="viewer-container">
-        <div id="image-wrapper">
-            <img id="paper-img" src="" alt="E-Paper View" style="display: none;">
-        </div>
     </div>
 
     <script>
@@ -524,7 +529,7 @@
             startClock(pausedTimeElapsed); 
         }
 
-        // --- Pause Logic Fix ---
+        // --- Fixed Pause Engine ---
         function pauseAutoScroll() {
             clearInterval(scrollTimer);
             stopClock();
@@ -539,7 +544,7 @@
             btnResume.style.display = "inline-flex"; 
         }
 
-        // --- Resume Logic Fix ---
+        // --- Fixed Resume Engine ---
         function resumeAutoScroll() {
             isPaused = false;
             btnResume.style.display = "none";
@@ -566,8 +571,6 @@
             btnToggle.style.backgroundColor = "var(--success)";
             btnToggle.innerText = "▶ Start Auto Scroll";
             btnResume.style.display = "none";
-            
-            viewerContainer.style.paddingTop = "155px";
         }
 
         btnToggle.addEventListener('click', (e) => {
@@ -592,7 +595,6 @@
                 isPaused = false;
                 pausedTimeElapsed = 0;
                 
-                viewerContainer.style.paddingTop = "0px";
                 controlPanel.classList.add('scrolling-mode');
                 controlPanel.classList.add('hidden'); 
                 
